@@ -1,10 +1,10 @@
 {
-    "name": "yuege/think-addons",
+    "name": "yinxu46/think-addons",
     "license": "mit",
     "authors": [
         {
-            "name": "yue909",
-            "email": "994927909@qq.com"
+            "name": "yinxu46",
+            "email": "yinxu46@qq.com"
         }
     ],
      "autoload": {
