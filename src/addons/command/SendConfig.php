@@ -35,7 +35,7 @@ class SendConfig extends Command
     public function configure()
     {
         $this->setName('addons:config')
-             ->setDescription('send config to config folder');
+            ->setDescription('send config to config folder');
     }
 
     public function execute(Input $input, Output $output)
@@ -58,7 +58,7 @@ class SendConfig extends Command
         }
 
         if (false === file_put_contents($configFile, $content)) {
-            throw new \RuntimeException(sprintf('The config file "%s" could not be written to "%s"', $configFile,$configPath));
+            throw new \RuntimeException(sprintf('The config file "%s" could not be written to "%s"', $configFile, $configPath));
         }
 
         $output->writeln('create addons config ok');

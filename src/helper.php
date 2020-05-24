@@ -87,7 +87,7 @@ if (!function_exists('get_addons_instance')) {
      * @param string $name 插件名
      * @return mixed|null
      */
-    function get_addons_instance($name)
+    function get_addons_instance(string $name)
     {
         static $_addons = [];
         if (isset($_addons[$name])) {
@@ -135,7 +135,6 @@ if (!function_exists('get_addons_class')) {
         return class_exists($namespace) ? $namespace : '';
     }
 }
-
 
 if (!function_exists('get_addons_config')) {
     /**
@@ -198,12 +197,11 @@ if (!function_exists('addons_url')) {
     }
 }
 
-/**
- * 获得插件列表
- * @return array
- */
 if (!function_exists('get_addons_list')) {
-
+    /**
+     * 获得插件列表
+     * @return array
+     */
     function get_addons_list()
     {
         if (!Cache::get('addonslist')) {
@@ -239,14 +237,13 @@ if (!function_exists('get_addons_list')) {
     }
 }
 
-/**
- * 获得插件自动加载的配置
- * @param bool $chunk 是否清除手动配置的钩子
- * @return array
- */
 if (!function_exists('get_addons_autoload_config')) {
-
-    function get_addons_autoload_config($chunk = false)
+    /**
+     * 获得插件自动加载的配置
+     * @param bool $chunk 是否清除手动配置的钩子
+     * @return array
+     */
+    function get_addons_autoload_config(bool $chunk = false)
     {
         // 读取addons的配置
         $config = (array)Config::get('addons');
@@ -304,15 +301,13 @@ if (!function_exists('get_addons_autoload_config')) {
     }
 }
 
-/**
- * 导入SQL
- *
- * @param string $name 插件名称
- * @return  boolean
- */
 if (!function_exists('importsql')) {
-
-    function importsql($name)
+    /**
+     * 导入SQL
+     * @param string $name 插件名称
+     * @return bool
+     */
+    function importsql(string $name)
     {
         $service = new Service(App::instance()); // 获取service 服务
         $addons_path = $service->getAddonsPath(); // 插件列表
@@ -343,15 +338,13 @@ if (!function_exists('importsql')) {
     }
 }
 
-/**
- * 卸载SQL
- *
- * @param string $name 插件名称
- * @return  boolean
- */
 if (!function_exists('uninstallsql')) {
-
-    function uninstallsql($name)
+    /**
+     * 卸载SQL
+     * @param string $name 插件名称
+     * @return bool
+     */
+    function uninstallsql(string $name)
     {
         $service = new Service(App::instance()); // 获取service 服务
         $addons_path = $service->getAddonsPath(); // 插件列表

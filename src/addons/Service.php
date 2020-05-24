@@ -53,8 +53,8 @@ class Service extends \think\Service
             }
 
             // 注册控制器路由
-            $route->rule("addons/:addon/[:controller]/[:action]", $execute)
-                ->middleware(Addons::class);
+            $route->rule("addons/:addon/[:controller]/[:action]", $execute)->middleware(Addons::class);
+
             // 自定义路由
             $routes = (array)Config::get('addons.route', []);
             foreach ($routes as $key => $val) {
@@ -259,10 +259,13 @@ class Service extends \think\Service
         return $assetsDir;
     }
 
-    //获取插件目录
+    /**
+     * 获取插件目录
+     * @param $name
+     * @return string
+     */
     public static function getAddonsNamePath($name)
     {
-
         return app()->getRootPath() . 'addons' . DIRECTORY_SEPARATOR . $name . DIRECTORY_SEPARATOR;
     }
 
@@ -353,7 +356,6 @@ class Service extends \think\Service
         $addonslist = get_addons_list();
         $addonslist[$name]['status'] = $state;
         Cache::set('addonslist', $addonslist);
-
     }
 
 }

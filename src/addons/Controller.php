@@ -1,4 +1,5 @@
 <?php
+declare (strict_types=1);
 
 namespace think\addons;
 
@@ -6,21 +7,74 @@ use think\App;
 use think\facade\Lang;
 use think\facade\View;
 use think\facade\Config;
-use app\common\controller\Base;
+use app\BaseController;
+use think\exception\ValidateException;
+use think\Validate;
 
 /**
- * 插件基类控制器.
+ * 插件基类控制器
+ * Class Controller
+ * @package think\addons
  */
-class Controller extends Base
+abstract class Controller
 {
-    // 当前插件操作
+    /**
+     * Request实例
+     * @var \think\Request
+     */
+    protected $request;
+
+    /**
+     * 应用实例
+     * @var \think\App
+     */
+    protected $app;
+
+    /**
+     * 是否批量验证
+     * @var bool
+     */
+    protected $batchValidate = false;
+
+    /**
+     * 控制器中间件
+     * @var array
+     */
+    protected $middleware = [];
+
+    /**
+     * 当前插件操作
+     * @var mixed|string|null
+     */
     protected $addon = null;
-    //插件路径
+    /**
+     * 插件路径
+     * @var string|null
+     */
     protected $addon_path = null;
+
+    /**
+     * 插件控制器
+     * @var mixed|string|null
+     */
     protected $controller = null;
+
+    /**
+     * 插件方法
+     * @var mixed|string|null
+     */
     protected $action = null;
-    // 当前template
+
+    /**
+     * 当前template
+     * @var
+     */
     protected $template;
+
+    /**
+     * 模版视图
+     * @var
+     */
     protected $view;
 
     /**
@@ -37,7 +91,6 @@ class Controller extends Base
      */
     protected $noNeedRight = ['*'];
 
-
     /**
      * 布局模板
      *
@@ -50,14 +103,15 @@ class Controller extends Base
      */
     public function __construct(App $app)
     {
-        //移除HTML标签
-        app()->request->filter('trim,strip_tags,htmlspecialchars');
+        // 移除HTML标签
+        $app->request->filter('trim,strip_tags,htmlspecialchars');
+
         // 是否自动转换控制器和操作名
         $convert = Config::get('url_convert');
-
         $filter = $convert ? 'strtolower' : 'trim';
+
         // 处理路由参数
-        $var = $param = app()->request->param();
+        $var = $param = $app->request->param();
         $addon = isset($var['addon']) ? $var['addon'] : '';
         $controller = isset($var['controller']) ? $var['controller'] : '';
         $action = isset($var['action']) ? $var['action'] : '';
@@ -71,38 +125,83 @@ class Controller extends Base
         if ($this->layout) {
             $this->view->layout('layout/' . $this->layout);
         }
+
         $this->_initialize();
+
         // 父类的调用必须放在设置模板路径之后
-        parent::__construct($app);
+        $this->app = $app;
+        $this->request = $this->app->request;
     }
 
-
+    /**
+     * 初始化
+     */
     protected function _initialize()
     {
-
         // 重置模板引擎配置
         $this->view = clone View::engine('Think');
-        $this->view->config(['view_path' =>  $this->addon_path . 'view' . DIRECTORY_SEPARATOR]);
+        $this->view->config(['view_path' => $this->addon_path . 'view' . DIRECTORY_SEPARATOR]);
+
         // 渲染配置到视图中
         $config = get_addons_config($this->addon);
-        $this->view->assign(['config'=>$config]);
+        $this->view->assign(['config' => $config]);
+
         // 加载系统语言包
         Lang::load([
             $this->addon_path . 'lang' . DIRECTORY_SEPARATOR . Lang::getLangset() . '.php',
         ]);
 
         parent::initialize();
-
-
-
     }
 
+    /**
+     * 初始化
+     */
+    protected function initialize()
+    {
+    }
 
+    /**
+     * 验证数据
+     * @access protected
+     * @param array $data 数据
+     * @param string|array $validate 验证器名或者验证规则数组
+     * @param array $message 提示信息
+     * @param bool $batch 是否批量验证
+     * @return array|string|true
+     * @throws ValidateException
+     */
+    protected function validate(array $data, $validate, array $message = [], bool $batch = false)
+    {
+        if (is_array($validate)) {
+            $v = new Validate();
+            $v->rule($validate);
+        } else {
+            if (strpos($validate, '.')) {
+                // 支持场景
+                [$validate, $scene] = explode('.', $validate);
+            }
+            $class = false !== strpos($validate, '\\') ? $validate : $this->app->parseClass('validate', $validate);
+            $v = new $class();
+            if (!empty($scene)) {
+                $v->scene($scene);
+            }
+        }
+
+        $v->message($message);
+
+        // 是否批量验证
+        if ($batch || $this->batchValidate) {
+            $v->batch(true);
+        }
+
+        return $v->failException(true)->check($data);
+    }
 
     /**
      * 加载模板输出
      * @param string $template
-     * @param array $vars           模板文件名
+     * @param array $vars 模板文件名
      * @return false|mixed|string   模板输出变量
      * @throws \think\Exception
      */
@@ -114,8 +213,8 @@ class Controller extends Base
     /**
      * 渲染内容输出
      * @access protected
-     * @param  string $content 模板内容
-     * @param  array  $vars    模板输出变量
+     * @param string $content 模板内容
+     * @param array $vars 模板输出变量
      * @return mixed
      */
     protected function display($content = '', $vars = [])
@@ -126,8 +225,8 @@ class Controller extends Base
     /**
      * 模板变量赋值
      * @access protected
-     * @param  mixed $name  要显示的模板变量
-     * @param  mixed $value 变量的值
+     * @param mixed $name 要显示的模板变量
+     * @param mixed $value 变量的值
      * @return $this
      */
     protected function assign($name, $value = '')
@@ -140,7 +239,7 @@ class Controller extends Base
     /**
      * 初始化模板引擎
      * @access protected
-     * @param  array|string $engine 引擎参数
+     * @param array|string $engine 引擎参数
      * @return $this
      */
     protected function engine($engine)
@@ -149,6 +248,5 @@ class Controller extends Base
 
         return $this;
     }
-
 
 }
