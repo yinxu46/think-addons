@@ -6,10 +6,18 @@ namespace think\addons\middleware;
 
 use think\App;
 
+/**
+ * Class Addons
+ * @package think\addons\middleware
+ */
 class Addons
 {
     protected $app;
 
+    /**
+     * Addons constructor.
+     * @param App $app
+     */
     public function __construct(App $app)
     {
         $this->app = $app;

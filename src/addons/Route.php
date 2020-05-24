@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace think\addons;
 
+use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
 use think\Exception;
 use think\exception\ClassNotFoundException;
 use think\helper\Str;
 use think\facade\Event;
 use think\facade\Config;
 use think\exception\HttpException;
-use ReflectionClass;
-use ReflectionException;
-use ReflectionMethod;
 use think\Response;
 
 class Route

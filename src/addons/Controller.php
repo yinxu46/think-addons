@@ -7,7 +7,6 @@ use think\App;
 use think\facade\Lang;
 use think\facade\View;
 use think\facade\Config;
-use app\BaseController;
 use think\exception\ValidateException;
 use think\Validate;
 
